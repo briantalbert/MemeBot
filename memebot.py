@@ -10,8 +10,6 @@ subreddit = reddit.subreddit("memeeconomy")
 inbox = reddit.inbox.comment_replies()
 total = 1000
 hours = 1.0
-y_balance = []
-x_time = []
 bot_string = ' | investments made by memebot pm me if things get out of control'
 
 def MemeBot():
@@ -22,10 +20,10 @@ def MemeBot():
         create_graph()
 
 def create_graph():
-    global y_balance
-    global x_time
     global total
-
+    y_balance = []
+    x_time = []
+    
     y_balance.append(total)
     x_time.append(time.strftime("%H:%M"))
 
@@ -67,7 +65,6 @@ def check_messages():
     global total
     num = read_messages()
     total = int(num)
-    mark_read()
 
 def read_messages():
     num = ''
@@ -130,6 +127,7 @@ def invest():
         hours = 4
 
     delete_messages()
+    mark_read()
     time.sleep(hours * 3600)
 
 MemeBot()
