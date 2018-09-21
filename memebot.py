@@ -31,7 +31,7 @@ def create_graph():
         del x_time[0]
 
     for i in range(len(y_balance)):
-        print(x_time[i] + " |" + ("*" * (y_balance[i] // 1000)) + '\n')
+        print(x_time[i] + " |" + ("*" * (y_balance[i] // 1000)))
 
     
 def delete_messages():
@@ -43,7 +43,6 @@ def delete_messages():
     print('Deleted ' + str(x) + ' comments.')
 
 def get_balance():
-    global total
     x = 0
     for submission in subreddit.rising():
         for toplevel in submission.comments:
@@ -51,22 +50,32 @@ def get_balance():
                 x = 1
                 print("Requesting balance...")
                 replyid = toplevel.reply("!balance" + bot_string)
+                replyid.refresh()
                 time.sleep(5)
                 
-                
-    read_balance_reply(replyid)
+    read_balance_reply(replyid, 0)
     
 
-def read_balance_reply(replyid):
+def read_balance_reply(replyid, x):
     global total
     num = ''
-    replyid.refresh()
     for reply in replyid.replies.list():
+        print("Reading balance.")
         for letter in reply.body:
             if letter.isdigit():
                 num = num + letter
-    print('Current total: ' + num + ' Memecoins')
-    total = int(num)
+    
+    if num != '':
+        print('Current total: ' + num + ' Memecoins')
+        total = int(num)
+    elif num == '' and x < 5:
+        x = x + 1
+        replyid.refresh()
+        time.sleep(1)
+        read_balance_reply(replyid, x)
+    elif num == '' and x >= 5:
+        print("Error retrieving balance. Exiting.")
+        num = 0
 
 def mark_read():
     for message in inbox:
@@ -123,6 +132,8 @@ def invest():
 
 while total >= 1000:
     MemeBot()
+
+delete_messages()
 
 
 print("Temporarily bankrupt. Halting investments.")
