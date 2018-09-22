@@ -82,6 +82,8 @@ def mark_read():
         if message.author.name == 'MemeInvestor_bot':
             message.mark_read()
 
+def clear_screen():
+    os.system('cls')
 
 def invest():
     global total
@@ -112,17 +114,14 @@ def invest():
     if memecount == 0:
         print('No qualifying memes. Trying again in 1 hour.')
         print("Current time: " + time.strftime("%H:%M") + ".")
-        print('\n')
         hours = 1
     elif memecount > 0 and memecount < 5:
         print('Invested in ' + str(memecount) + ' meme(s). Checking again in 1 hour.')
         print("Current time: " + time.strftime("%H:%M") + ".")
-        print('\n')
         hours = 1
     elif memecount >= 5:
         print('Invested in ' + str(memecount) + ' memes. Checking again in 4 hours.')
         print("Current time: " + time.strftime("%H:%M") + ".")
-        print('\n')
         hours = 4
 
     delete_messages()
@@ -132,6 +131,7 @@ def invest():
 
 while total >= 1000:
     MemeBot()
+    clear_screen()
 
 delete_messages()
 
