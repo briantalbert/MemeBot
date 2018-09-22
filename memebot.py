@@ -85,6 +85,13 @@ def mark_read():
 def clear_screen():
     os.system('cls')
 
+def calculate_floor():
+    current_time = int(time.strftime("%H"))
+    if current_time > 21 or current_time <= 6:
+        return 80
+    else:
+        return 50
+
 def invest():
     global total
     invest_amt = total // 5
@@ -92,9 +99,10 @@ def invest():
         invest_amt = 100
     invest_str = "!invest " + str(invest_amt) + bot_string
     submissions = []
+    invest_floor = calculate_floor()
     
     for submission in subreddit.rising():
-        if submission.score >= 50:
+        if submission.score >= invest_floor:
             print(submission.title)
             submissions.append(submission.id)
             x = 0
