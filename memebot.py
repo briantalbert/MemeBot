@@ -30,8 +30,12 @@ def create_graph():
     if len(x_time) > 10:
         del x_time[0]
 
+    print('\n')
+    print("Performance over time:")
     for i in range(len(y_balance)):
-        print(x_time[i] + " |" + ("*" * (y_balance[i] // 1000)))
+        print(x_time[i] + " |" + ("*" * (y_balance[i] // 10000)))
+    print("Each star corresponds to 10,000 Memecoins.")
+    print('\n')
 
     
 def delete_messages():
@@ -53,7 +57,11 @@ def get_balance():
                 replyid.refresh()
                 time.sleep(5)
                 
-    read_balance_reply(replyid, 0)
+    if x == 0:
+        time.sleep(300)
+        get_balance()
+    else:
+        read_balance_reply(replyid, 0)
     
 
 def read_balance_reply(replyid, x):
@@ -74,8 +82,29 @@ def read_balance_reply(replyid, x):
         time.sleep(1)
         read_balance_reply(replyid, x)
     elif num == '' and x >= 5:
-        print("Error retrieving balance. Exiting.")
-        num = 0
+        #last ditch effort
+        num = read_messages()
+        total = num
+
+
+def read_messages():
+    num = ''
+    global total
+    x = 0
+    for message in inbox:
+        if x == 0 and message.author.name == 'MemeInvestor_bot':
+            message.mark_read()
+            x = 1
+            if 'Currently' in message.body:
+                for letter in message.body:
+                    if letter.isdigit():
+                        num = num + letter
+    if num == '':
+        num = total
+        print('Current total: ' + str(num) + 'ish Memecoins')
+    else:
+        print('Current total: ' + str(num) + ' Memecoins')
+    return int(num)
 
 def mark_read():
     for message in inbox:
@@ -94,15 +123,14 @@ def calculate_floor():
 
 def invest():
     global total
-    invest_amt = total // 5
+    invest_amt = total // 4
     if invest_amt < 100:
         invest_amt = 100
     invest_str = "!invest " + str(invest_amt) + bot_string
     submissions = []
-    invest_floor = calculate_floor()
     
     for submission in subreddit.rising():
-        if submission.score >= invest_floor:
+        if submission.score >= calculate_floor():
             print(submission.title)
             submissions.append(submission.id)
             x = 0
@@ -114,7 +142,6 @@ def invest():
                     x = x + 1
                     total = total - invest_amt
                     print("Investing " + str(invest_amt) + ", you have " + str(total) + " remaining.")
-                    print('\n')
                     time.sleep(5)
             submission.upvote()
     memecount = len(submissions)
@@ -123,11 +150,11 @@ def invest():
         print('No qualifying memes. Trying again in 1 hour.')
         print("Current time: " + time.strftime("%H:%M") + ".")
         hours = 1
-    elif memecount > 0 and memecount < 5:
+    elif memecount > 0 and memecount < 4:
         print('Invested in ' + str(memecount) + ' meme(s). Checking again in 1 hour.')
         print("Current time: " + time.strftime("%H:%M") + ".")
         hours = 1
-    elif memecount >= 5:
+    elif memecount >= 4:
         print('Invested in ' + str(memecount) + ' memes. Checking again in 4 hours.')
         print("Current time: " + time.strftime("%H:%M") + ".")
         hours = 4
