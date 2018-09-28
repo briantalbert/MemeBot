@@ -48,7 +48,7 @@ def delete_messages():
 
 def get_balance():
     x = 0
-    for submission in subreddit.rising():
+    for submission in subreddit.new():
         for toplevel in submission.comments:
             if x == 0:
                 x = 1
@@ -57,11 +57,7 @@ def get_balance():
                 replyid.refresh()
                 time.sleep(5)
                 
-    if x == 0:
-        time.sleep(300)
-        get_balance()
-    else:
-        read_balance_reply(replyid, 0)
+    read_balance_reply(replyid, 0)
     
 
 def read_balance_reply(replyid, x):
@@ -132,13 +128,13 @@ def invest():
     for submission in subreddit.rising():
         if submission.score >= calculate_floor():
             print(submission.title)
-            submissions.append(submission.id)
             x = 0
             submission.downvote()
             time.sleep(5)
             for toplevel in submission.comments:
                 if x == 0:
                     toplevel.reply(invest_str)
+                    submissions.append(submission.id)
                     x = x + 1
                     total = total - invest_amt
                     print("Investing " + str(invest_amt) + ", you have " + str(total) + " remaining.")
