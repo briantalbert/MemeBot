@@ -5,42 +5,47 @@ import re
 import os
 import time
 
-reddit = praw.Reddit('bot1')
+reddit = praw.Reddit('memebot')
 subreddit = reddit.subreddit("memeeconomy")
 inbox = reddit.inbox.comment_replies()
 total = 1000
 y_balance = []
 x_time = []
+memecountarray = []
 bot_string = ' | investments made by memebot pm me if things get out of control'
 
 def MemeBot():
     get_balance()
     invest()
 
-def create_graph():
+def create_graph(memecount):
     global total
     global y_balance
     global x_time
+    global memecountarray
     
     y_balance.append(total)
     x_time.append(time.strftime("%H:%M"))
-
-    if len(y_balance) > 10:
+    memecountarray.append(memecount)
+    
+    if len(y_balance) > 24:
         del y_balance[0]
-    if len(x_time) > 10:
+    if len(x_time) > 24:
         del x_time[0]
+    if len(memecountarray) > 24:
+        del memecountarray[0]
 
     print('\n')
-    print("Performance over time:")
+    print("Performance over past 24 hours:")
     for i in range(len(y_balance)):
-        print(x_time[i] + " |" + ("*" * (y_balance[i] // 10000)))
-    print("Each star corresponds to 10,000 Memecoins.")
+        print(x_time[i] + " | " + str(memecountarray[i]) + " | " + ("*" * (y_balance[i] // 50000)))
+    print("Each star corresponds to 50,000 Memecoins.")
     print('\n')
 
     
 def delete_messages():
     x = 0
-    for comment in reddit.redditor('Talbertross').comments.new(limit=20):
+    for comment in reddit.redditor('Talbertross_MemeBot').comments.new(limit=20):
         if comment.body[0] == '!':
             x = x + 1
             comment.delete()
@@ -126,8 +131,8 @@ def invest():
     submissions = []
     
     for submission in subreddit.rising():
-        if submission.score >= calculate_floor():
-            print(submission.title)
+        if submission.score >= calculate_floor() and total >= 100:
+            print(submission.id)
             x = 0
             submission.downvote()
             time.sleep(5)
@@ -151,16 +156,17 @@ def invest():
         print("Current time: " + time.strftime("%H:%M") + ".")
         hours = 1
     elif memecount >= 4:
-        print('Invested in ' + str(memecount) + ' memes. Checking again in 4 hours.')
+        print('Invested in ' + str(memecount) + ' memes. Checking again in 1 hour.')
         print("Current time: " + time.strftime("%H:%M") + ".")
-        hours = 4
+        hours = 1
 
-    delete_messages()
+    
     mark_read()
-    create_graph()
+    create_graph(memecount)  
     time.sleep(hours * 3600)
+    delete_messages()
 
-while total >= 1000:
+while total >= 0:
     MemeBot()
     clear_screen()
 
